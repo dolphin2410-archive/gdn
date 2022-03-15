@@ -1,3 +1,5 @@
 /target
 capture.pcapng
+backup.pcapng
 /assets
+pkt.exe

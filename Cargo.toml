@@ -2,6 +2,7 @@
 name = "pkt"
 version = "0.1.0"
 edition = "2021"
+author = "dolphin2410"
 
 [dependencies]
 pcap-parser = { version = "0.13.0", features = ["data"] }

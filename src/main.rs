@@ -2,7 +2,7 @@ use pcap_parser::*;
 use pcap_parser::data::PacketData;
 use pcap_parser::traits::PcapReaderIterator;
 use regex::Regex;
-use winapi::um::winuser::{SW_NORMAL, SW_SHOWDEFAULT};
+use winapi::um::winuser::SW_NORMAL;
 use std::ffi::CString;
 use std::fs::File;
 use std::process::{Command, Stdio};
@@ -10,11 +10,28 @@ use std::io;
 use std::io::prelude::*;
 use clap::Parser;
 
+struct Cleanup {
+    etl: String,
+    nocapture: bool,
+    save: bool
+}
+
+impl Drop for Cleanup {
+    fn drop(&mut self) {
+        if !self.nocapture && !self.save {
+            let _ = std::fs::remove_file(self.etl.as_str());
+        }
+    }
+}
+
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
     #[clap(short, long)]
     nocapture: bool,
+
+    #[clap(short, long)]
+    save: bool,
 
     #[clap(short, long, default_value_t = String::from("capture.pcapng"))]
     file: String
@@ -40,17 +57,15 @@ fn capture_packet(default: &str) {
     pause();
     Command::new("pktmon").args(vec!["stop"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
     Command::new("pktmon").args(vec!["etl2pcap", "PktMon.etl", "-o", default]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
+    std::fs::remove_file("PktMon.etl").unwrap();
 }
 
 fn elevate() {
-    println!("Reached");
     use winapi::um::shellapi::ShellExecuteA;
     use winapi::um::wincon::GetConsoleWindow;
     let runas = CString::new("runas").unwrap();
     let program = CString::new(std::env::current_exe().unwrap().as_os_str().to_str().unwrap()).unwrap();
     let args = CString::new(std::env::args().collect::<Vec<String>>()[1..].join(" ")).unwrap();
-
-    println!("{}", args.to_str().unwrap());
 
     unsafe {
         ShellExecuteA(
@@ -67,16 +82,21 @@ fn main() {
     use device_query::{DeviceQuery, DeviceState, Keycode};
     use is_elevated::is_elevated;
 
-    if !is_elevated() {
-        elevate();
-        return;
-    }
-
     let args = Args::parse();
 
     if !args.nocapture {
+        if !is_elevated() {
+            elevate();
+            return;
+        }
         capture_packet(args.file.as_str());
     }
+
+    let _cleanup = Cleanup {
+        etl: String::from(args.file.as_str()),
+        nocapture: args.nocapture,
+        save: args.save
+    };
 
     let file = File::open(args.file.as_str()).unwrap();
     let input = read(file);
