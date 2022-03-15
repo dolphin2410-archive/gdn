@@ -6,5 +6,8 @@ edition = "2021"
 [dependencies]
 pcap-parser = { version = "0.13.0", features = ["data"] }
 regex = "1.5.4"
-dotenv = "0.15.0"
-dotenv_codegen = "0.15.0"
+device_query = "0.1.0"
+soloud = "1.0.2"
+clap = { version = "3.1.6", features = ["derive"] }
+winapi = { version = "0.3.9", features = ["shellapi", "impl-default"] }
+is_elevated = "0.1.2"

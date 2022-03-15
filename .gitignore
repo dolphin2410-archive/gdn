@@ -1,4 +1,3 @@
 /target
-sample.pcapng
-pkt.exe
-.env
+capture.pcapng
+/assets
