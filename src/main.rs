@@ -52,7 +52,7 @@ fn capture_packet(default: &str) {
     Command::new("pktmon").args(vec!["filter", "remove"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
     Command::new("pktmon").args(vec!["filter", "add", "-i", ip, "-t", "tcp", "-p", "80"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
     Command::new("pktmon").args(vec!["filter", "add", "-i", ip, "-t", "tcp", "-p", "443"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
-    Command::new("pktmon").args(vec!["start", "--etw", "-c", "--pkt-size", "0"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
+    Command::new("pktmon").args(vec!["start", "--etw", "--capture", "--pkt-size", "0"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
 
     pause();
     Command::new("pktmon").args(vec!["stop"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
