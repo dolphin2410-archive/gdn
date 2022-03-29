@@ -242,7 +242,7 @@ checksum = "58893f751c9b0412871a09abd62ecd2a00298c6c83befa223ef98c52aef40cbe"
 
 [[package]]
 name = "pkt"
-version = "1.0.3"
+version = "2.0.0"
 dependencies = [
  "clap",
  "device_query",
