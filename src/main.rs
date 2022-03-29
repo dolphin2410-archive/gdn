@@ -67,16 +67,15 @@ fn capture_packet(default: &str, old: bool) {
     std::fs::remove_file("PktMon.etl").unwrap();
 }
 
-fn convert_string(str: &'static str) -> CString {
+fn convert_string(str: &str) -> CString {
     CString::new(str).unwrap()
 }
 
 fn elevate() {
     use winapi::um::shellapi::ShellExecuteA;
-    use winapi::um::wincon::GetConsoleWindow;
     let runas = convert_string("runas");
     let program = convert_string(std::env::current_exe().unwrap().as_os_str().to_str().unwrap());
-    let args = convert_string(std::env::args().collect::<Vec<String>>()[1..].join(" "));
+    let args = convert_string(&std::env::args().collect::<Vec<String>>()[1..].join(" "));
 
     unsafe {
         ShellExecuteA(
