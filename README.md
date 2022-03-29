@@ -24,4 +24,13 @@
     ```
     pkt.exe --file my.pcapng
     ```
+
+    - **Old**
+
+    Uses the old `pktmon`. For older windows 10 versions
+
+    ```
+    pkt.exe --old
+    ```
+
 3. `Ctrl+Q` to listen to the parsed data
