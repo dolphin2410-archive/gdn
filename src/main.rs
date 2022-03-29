@@ -2,7 +2,7 @@ use pcap_parser::*;
 use pcap_parser::data::PacketData;
 use pcap_parser::traits::PcapReaderIterator;
 use regex::Regex;
-use winapi::um::winuser::SW_NORMAL;
+use winapi::um::winuser::SW_SHOWNORMAL;
 use std::ffi::CString;
 use std::fs::File;
 use std::process::{Command, Stdio};
@@ -67,21 +67,25 @@ fn capture_packet(default: &str, old: bool) {
     std::fs::remove_file("PktMon.etl").unwrap();
 }
 
+fn convert_string(str: &'static str) -> CString {
+    CString::new(str).unwrap()
+}
+
 fn elevate() {
     use winapi::um::shellapi::ShellExecuteA;
     use winapi::um::wincon::GetConsoleWindow;
-    let runas = CString::new("runas").unwrap();
-    let program = CString::new(std::env::current_exe().unwrap().as_os_str().to_str().unwrap()).unwrap();
-    let args = CString::new(std::env::args().collect::<Vec<String>>()[1..].join(" ")).unwrap();
+    let runas = convert_string("runas");
+    let program = convert_string(std::env::current_exe().unwrap().as_os_str().to_str().unwrap());
+    let args = convert_string(std::env::args().collect::<Vec<String>>()[1..].join(" "));
 
     unsafe {
         ShellExecuteA(
-            GetConsoleWindow(), 
+            std::ptr::null_mut(), 
             runas.as_ptr(), 
             program.as_ptr(), 
             args.as_ptr(), 
             std::ptr::null_mut(), 
-            SW_NORMAL);
+            SW_SHOWNORMAL);
     };
 }
 
