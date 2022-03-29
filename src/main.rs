@@ -34,7 +34,10 @@ struct Args {
     save: bool,
 
     #[clap(short, long, default_value_t = String::from("capture.pcapng"))]
-    file: String
+    file: String,
+
+    #[clap(short, long)]
+    old: bool
 }
 
 fn pause() {
@@ -47,12 +50,16 @@ fn pause() {
     let _ = stdin.read(&mut [0u8]).unwrap();
 }
 
-fn capture_packet(default: &str) {
+fn capture_packet(default: &str, old: bool) {
     let ip = "115.68.13.56"; 
     Command::new("pktmon").args(vec!["filter", "remove"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
     Command::new("pktmon").args(vec!["filter", "add", "-i", ip, "-t", "tcp", "-p", "80"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
     Command::new("pktmon").args(vec!["filter", "add", "-i", ip, "-t", "tcp", "-p", "443"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
-    Command::new("pktmon").args(vec!["start", "--etw", "--pkt-size", "0"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
+    if old {
+        Command::new("pktmon").args(vec!["start", "--etw", "--packet-size", "0"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
+    } else {
+        Command::new("pktmon").args(vec!["start", "--etw", "--pkt-size", "0"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
+    }
 
     pause();
     Command::new("pktmon").args(vec!["stop"]).stdout(Stdio::inherit()).spawn().unwrap().wait().unwrap();
@@ -89,7 +96,7 @@ fn main() {
             elevate();
             return;
         }
-        capture_packet(args.file.as_str());
+        capture_packet(args.file.as_str(), args.old);
     }
 
     let _cleanup = Cleanup {
